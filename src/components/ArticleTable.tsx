@@ -18,7 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Search, AlertTriangle, Info, AlertCircle } from "lucide-react";
+import { Search, AlertTriangle, Info, AlertCircle, ExternalLink, Calendar, Building2 } from "lucide-react";
 
 interface Article {
   Title: string;
@@ -27,6 +27,9 @@ interface Article {
   Affected_Nodes: string[];
   Explanation: string;
   Risk_Score: number;
+  Source?: string;
+  PublishedAt?: string;
+  Url?: string;
 }
 
 interface ArticleTableProps {
@@ -209,6 +212,32 @@ export const ArticleTable = ({ articles }: ArticleTableProps) => {
           </DialogHeader>
           {selectedArticle && (
             <div className="space-y-4">
+              {selectedArticle.Source && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Building2 className="h-4 w-4" />
+                  <span>{selectedArticle.Source}</span>
+                  {selectedArticle.PublishedAt && (
+                    <>
+                      <span>•</span>
+                      <Calendar className="h-4 w-4" />
+                      <span>{new Date(selectedArticle.PublishedAt).toLocaleDateString()}</span>
+                    </>
+                  )}
+                </div>
+              )}
+              
+              {selectedArticle.Url && (
+                <a 
+                  href={selectedArticle.Url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+                >
+                  View Original Article
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              )}
+              
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">Risk Type</p>

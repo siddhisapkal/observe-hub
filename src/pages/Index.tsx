@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { MetricsCard } from "@/components/MetricsCard";
 import { RiskDistributionChart } from "@/components/RiskDistributionChart";
 import { ArticleTable } from "@/components/ArticleTable";
-import { AlertTriangle, FileText, TrendingUp, Shield } from "lucide-react";
+import { AlertTriangle, FileText, TrendingUp, Shield, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Article {
   Title: string;
@@ -12,14 +14,81 @@ interface Article {
   Affected_Nodes: string[];
   Explanation: string;
   Risk_Score: number;
+  Source?: string;
+  PublishedAt?: string;
+  Url?: string;
 }
 
 const Index = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [analyzing, setAnalyzing] = useState(false);
   const { toast } = useToast();
 
+  const fetchAndAnalyzeNews = async () => {
+    setAnalyzing(true);
+    try {
+      // Step 1: Fetch news
+      toast({
+        title: "Fetching News",
+        description: "Retrieving latest articles...",
+      });
+
+      const { data: newsData, error: newsError } = await supabase.functions.invoke('fetch-news', {
+        body: { 
+          query: 'Tata Motors OR automotive OR electric vehicle OR supply chain OR battery OR semiconductor',
+          pageSize: 20 
+        }
+      });
+
+      if (newsError) throw newsError;
+      
+      const newsArticles = newsData?.articles || [];
+      console.log('Fetched articles:', newsArticles.length);
+
+      if (newsArticles.length === 0) {
+        toast({
+          title: "No Articles Found",
+          description: "No recent news articles were found.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Step 2: Analyze with AI
+      toast({
+        title: "Analyzing Risks",
+        description: `Analyzing ${newsArticles.length} articles with AI...`,
+      });
+
+      const { data: analyzedData, error: analyzeError } = await supabase.functions.invoke('analyze-risk', {
+        body: { articles: newsArticles }
+      });
+
+      if (analyzeError) throw analyzeError;
+
+      const analyzedArticles = analyzedData || [];
+      setArticles(analyzedArticles);
+
+      toast({
+        title: "Analysis Complete",
+        description: `Successfully analyzed ${analyzedArticles.length} articles`,
+      });
+
+    } catch (error) {
+      console.error("Error fetching and analyzing news:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch or analyze news. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
   useEffect(() => {
+    // Load initial data from static JSON
     const loadData = async () => {
       try {
         const response = await fetch("/data/tata_motors_risk_analysis.json");
@@ -106,12 +175,23 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-3">
-            <Shield className="h-8 w-8 text-primary" />
-            <div>
-              <h1 className="text-3xl font-bold">Risk Analysis Dashboard</h1>
-              <p className="text-muted-foreground">Tata Motors - Comprehensive Risk Monitoring</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Shield className="h-8 w-8 text-primary" />
+              <div>
+                <h1 className="text-3xl font-bold">Risk Analysis Dashboard</h1>
+                <p className="text-muted-foreground">Tata Motors - Real-time Risk Monitoring with AI</p>
+              </div>
             </div>
+            <Button 
+              onClick={fetchAndAnalyzeNews} 
+              disabled={analyzing || loading}
+              size="lg"
+              className="gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${analyzing ? 'animate-spin' : ''}`} />
+              {analyzing ? 'Analyzing...' : 'Fetch & Analyze News'}
+            </Button>
           </div>
         </div>
       </header>
