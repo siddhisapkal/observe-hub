@@ -90,9 +90,12 @@ export const ArticleTable = ({ articles }: ArticleTableProps) => {
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle>Risk Analysis Reports</CardTitle>
+      <Card className="glass-card shadow-premium relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <CardHeader className="relative z-10">
+          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            Risk Analysis Reports
+          </CardTitle>
           <div className="relative mt-4">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -102,12 +105,12 @@ export const ArticleTable = ({ articles }: ArticleTableProps) => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className="pl-10"
+              className="pl-10 glass border-border/50 focus:border-primary/50 focus:ring-primary/20 transition-all"
             />
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
+        <CardContent className="relative z-10">
+          <div className="rounded-lg border border-border/50 overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>

@@ -172,22 +172,35 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Shield className="h-8 w-8 text-primary" />
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
+      </div>
+
+      <header className="relative border-b border-border/50 backdrop-blur-xl bg-card/30">
+        <div className="absolute inset-0 gradient-glow opacity-50"></div>
+        <div className="container mx-auto px-4 py-8 relative">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-4 animate-slide-up">
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/20 rounded-xl blur-xl animate-glow"></div>
+                <Shield className="h-10 w-10 text-primary relative z-10" strokeWidth={2.5} />
+              </div>
               <div>
-                <h1 className="text-3xl font-bold">Risk Analysis Dashboard</h1>
-                <p className="text-muted-foreground">Tata Motors - Real-time Risk Monitoring with AI</p>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                  Risk Analysis Dashboard
+                </h1>
+                <p className="text-muted-foreground mt-1">Tata Motors - Real-time Risk Monitoring with AI</p>
               </div>
             </div>
             <Button 
               onClick={fetchAndAnalyzeNews} 
               disabled={analyzing || loading}
               size="lg"
-              className="gap-2"
+              className="gap-2 shadow-premium hover:shadow-glow transition-all duration-300 hover:scale-105 animate-slide-up"
+              style={{ animationDelay: '0.1s' }}
             >
               <RefreshCw className={`h-4 w-4 ${analyzing ? 'animate-spin' : ''}`} />
               {analyzing ? 'Analyzing...' : 'Fetch & Analyze News'}
@@ -196,43 +209,30 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 space-y-8">
-        <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <MetricsCard
-            title="Total Articles"
-            value={totalArticles.toLocaleString()}
-            icon={FileText}
-            trend="All analyzed articles"
-          />
-          <MetricsCard
-            title="High Risk Alerts"
-            value={highRiskCount.toLocaleString()}
-            icon={AlertTriangle}
-            trend={`${((highRiskCount / totalArticles) * 100).toFixed(1)}% of total`}
-            variant="destructive"
-          />
-          <MetricsCard
-            title="Avg Risk Score"
-            value={avgRiskScore}
-            icon={TrendingUp}
-            trend="Across all articles"
-            variant="warning"
-          />
-          <MetricsCard
-            title="Supply Chain Risks"
-            value={supplyChainRisks.toLocaleString()}
-            icon={Shield}
-            trend={`${((supplyChainRisks / totalArticles) * 100).toFixed(1)}% of total`}
-            variant="warning"
-          />
+      <main className="container mx-auto px-4 py-12 space-y-12 relative">
+        <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {[
+            { title: "Total Articles", value: totalArticles.toLocaleString(), icon: FileText, trend: "All analyzed articles", variant: "default" as const, delay: "0s" },
+            { title: "High Risk Alerts", value: highRiskCount.toLocaleString(), icon: AlertTriangle, trend: `${((highRiskCount / totalArticles) * 100).toFixed(1)}% of total`, variant: "destructive" as const, delay: "0.1s" },
+            { title: "Avg Risk Score", value: avgRiskScore, icon: TrendingUp, trend: "Across all articles", variant: "warning" as const, delay: "0.2s" },
+            { title: "Supply Chain Risks", value: supplyChainRisks.toLocaleString(), icon: Shield, trend: `${((supplyChainRisks / totalArticles) * 100).toFixed(1)}% of total`, variant: "warning" as const, delay: "0.3s" }
+          ].map((metric, idx) => (
+            <div key={idx} className="animate-slide-up" style={{ animationDelay: metric.delay }}>
+              <MetricsCard {...metric} />
+            </div>
+          ))}
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2">
-          <RiskDistributionChart data={riskTypeData} title="Risk Type Distribution" />
-          <RiskDistributionChart data={severityData} title="Severity Distribution" />
+        <section className="grid gap-6 md:grid-cols-2">
+          <div className="animate-slide-up" style={{ animationDelay: '0.4s' }}>
+            <RiskDistributionChart data={riskTypeData} title="Risk Type Distribution" />
+          </div>
+          <div className="animate-slide-up" style={{ animationDelay: '0.5s' }}>
+            <RiskDistributionChart data={severityData} title="Severity Distribution" />
+          </div>
         </section>
 
-        <section>
+        <section className="animate-slide-up" style={{ animationDelay: '0.6s' }}>
           <ArticleTable articles={articles} />
         </section>
       </main>
